@@ -18,7 +18,6 @@ BOLD_MAGENTA		= \033[1;35m
 RESET				= \033[0m
 
 NAME				= AtLeastThisBeatsCoffee
-TESTER_NAME			= ex03_tester
 CPP					= c++
 CPPFLAGS			= -Wall -Wextra -Werror -std=c++98
 LDFLAGS				=
@@ -28,46 +27,35 @@ OBJ_DIR				= obj
 SRC					= main.cpp Bureaucrat.cpp AForm.cpp \
 					ShrubberyCreationForm.cpp RobotomyRequestForm.cpp \
 					PresidentialPardonForm.cpp Intern.cpp
-TESTER_SRC			= tester.cpp Bureaucrat.cpp AForm.cpp \
-					ShrubberyCreationForm.cpp RobotomyRequestForm.cpp \
-					PresidentialPardonForm.cpp Intern.cpp
 
 OBJ					= $(SRC:%.cpp=$(OBJ_DIR)/%.o)
-TESTER_OBJ			= $(TESTER_SRC:%.cpp=$(OBJ_DIR)/%.o)
 
 all: $(NAME)
 
-tester: $(TESTER_NAME)
-
 $(NAME): $(OBJ)
-	@echo "$(ORANGE)Building $(NAME)...$(RESET)"
+	@echo -e "$(ORANGE)Building $(NAME)...$(RESET)"
 	@$(CPP) $(OBJ) $(CPPFLAGS) $(LDFLAGS) -o $(NAME)
-	@echo "$(BOLD_ORANGE)$(NAME) is ready!$(RESET)"
-
-$(TESTER_NAME): $(TESTER_OBJ)
-	@echo "$(ORANGE)Building $(TESTER_NAME)...$(RESET)"
-	@$(CPP) $(TESTER_OBJ) $(CPPFLAGS) $(LDFLAGS) -o $(TESTER_NAME)
-	@echo "$(BOLD_ORANGE)$(TESTER_NAME) is ready!$(RESET)"
+	@echo -e "$(BOLD_ORANGE)$(NAME) is ready!$(RESET)"
 
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 	@mkdir -p $(dir $@)
-	@echo "$(ORANGE)Compiling $<...$(RESET)"
+	@echo -e "$(ORANGE)Compiling $<...$(RESET)"
 	@$(CPP) $(CPPFLAGS) -c $< -o $@
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
 
 fclean: clean
-	@echo "$(MAGENTA)Removing executables...$(RESET)"
-	@$(RM) $(NAME) $(TESTER_NAME)
-	@echo "$(BOLD_MAGENTA)Executables removed!$(RESET)"
+	@echo -e "$(MAGENTA)Removing executables...$(RESET)"
+	@$(RM) $(NAME)
+	@echo -e "$(BOLD_MAGENTA)Executables removed!$(RESET)"
 
 clean:
-	@echo "$(MAGENTA)Cleaning object files...$(RESET)"
+	@echo -e "$(MAGENTA)Cleaning object files...$(RESET)"
 	@$(RM) -r $(OBJ_DIR) *.o
-	@echo "$(BOLD_MAGENTA)All object files cleaned!$(RESET)"
+	@echo -e "$(BOLD_MAGENTA)All object files cleaned!$(RESET)"
 
 re: fclean all
-	@echo "$(BG_YELLOW)Cleaned and rebuilt everything!$(RESET)"
+	@echo -e "$(BG_YELLOW)Cleaned and rebuilt everything!$(RESET)"
 
-.PHONY: all tester clean fclean re
+.PHONY: all clean fclean re
