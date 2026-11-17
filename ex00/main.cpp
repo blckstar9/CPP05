@@ -11,42 +11,69 @@
 /* ************************************************************************** */
 
 #include "Bureaucrat.hpp"
+#include <cassert>
+
+static void testInvalidGrade(int grade)
+{
+	bool caught = false;
+	try
+	{
+		Bureaucrat invalid("Invalid", grade);
+	}
+	catch (const Bureaucrat::GradeTooHighException& e)
+	{
+		assert(grade < 1);
+		caught = true;
+		std::cout << e.what() << std::endl;
+	}
+	catch (const Bureaucrat::GradeTooLowException& e)
+	{
+		assert(grade > 150);
+		caught = true;
+		std::cout << e.what() << std::endl;
+	}
+	assert(caught);
+}
 
 int main()
 {
 	std::cout << "--- ex00 main tests ---" << std::endl;
-	try
-	{
-		Bureaucrat bob("Bob", 42);
-		std::cout << bob << std::endl;
-		bob.incrementGrade();
-		std::cout << bob << std::endl;
-		bob.decrementGrade();
-		std::cout << bob << std::endl;
-	}
-	catch (std::exception& e)
-	{
-		std::cout << e.what() << std::endl;
-	}
+	Bureaucrat bob("Bob", 42);
+	bob.incrementGrade();
+	assert(bob.getGrade() == 41);
+	bob.decrementGrade();
+	assert(bob.getGrade() == 42);
+	std::cout << bob << std::endl;
+	testInvalidGrade(0);
+	testInvalidGrade(151);
 
+	Bureaucrat top("Top", 1);
+	Bureaucrat bottom("Bottom", 150);
+	bool caught = false;
 	try
 	{
-		Bureaucrat tooHigh("TooHigh", 0);
-		std::cout << tooHigh << std::endl;
+		top.incrementGrade();
 	}
-	catch (std::exception& e)
+	catch (const Bureaucrat::GradeTooHighException& e)
 	{
+		caught = true;
 		std::cout << e.what() << std::endl;
 	}
-
+	assert(caught && top.getGrade() == 1);
+	caught = false;
 	try
 	{
-		Bureaucrat tooLow("TooLow", 151);
-		std::cout << tooLow << std::endl;
+		bottom.decrementGrade();
 	}
-	catch (std::exception& e)
+	catch (const Bureaucrat::GradeTooLowException& e)
 	{
+		caught = true;
 		std::cout << e.what() << std::endl;
 	}
+	assert(caught && bottom.getGrade() == 150);
+	top.decrementGrade();
+	bottom.incrementGrade();
+	assert(top.getGrade() == 2 && bottom.getGrade() == 149);
+	std::cout << "All ex00 tests passed." << std::endl;
 	return (0);
 }

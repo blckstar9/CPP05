@@ -15,28 +15,67 @@
 #include "ShrubberyCreationForm.hpp"
 #include "RobotomyRequestForm.hpp"
 #include "PresidentialPardonForm.hpp"
+#include <cassert>
+#include <fstream>
 
-int	main(void)
+static void testForm(AForm& form, int signGrade, int execGrade)
 {
-	std::cout << "--- ex02 main tests ---" << std::endl;
+	std::cout << "Testing " << form << std::endl;
+	assert(form.getGradeToSign() == signGrade);
+	assert(form.getGradeToExecute() == execGrade);
+	assert(!form.getIsSigned());
+	Bureaucrat boss("Boss", 1);
+	Bureaucrat signer("ExactSigner", signGrade);
+	Bureaucrat weakSigner("WeakSigner", signGrade + 1);
+	Bureaucrat executor("ExactExecutor", execGrade);
+	Bureaucrat weakExecutor("WeakExecutor", execGrade + 1);
+	bool caught = false;
 	try
 	{
-		Bureaucrat low("Low", 140);
-		Bureaucrat high("High", 1);
-		ShrubberyCreationForm shrub("home");
-		RobotomyRequestForm robo("Bender");
-		PresidentialPardonForm pardon("Arthur Dent");
-
-		low.signForm(shrub);
-		high.executeForm(shrub);
-		high.signForm(robo);
-		high.executeForm(robo);
-		high.signForm(pardon);
-		high.executeForm(pardon);
+		form.execute(boss);
 	}
-	catch (std::exception& e)
+	catch (const AForm::FormNotSignedException& e)
 	{
+		caught = true;
 		std::cout << e.what() << std::endl;
 	}
+	assert(caught);
+	boss.executeForm(form);
+	weakSigner.signForm(form);
+	assert(!form.getIsSigned());
+	signer.signForm(form);
+	assert(form.getIsSigned());
+	caught = false;
+	try
+	{
+		form.execute(weakExecutor);
+	}
+	catch (const AForm::GradeTooLowException& e)
+	{
+		caught = true;
+		std::cout << e.what() << std::endl;
+	}
+	assert(caught);
+	weakExecutor.executeForm(form);
+	form.execute(executor);
+	executor.executeForm(form);
+}
+
+int main()
+{
+	std::cout << "--- ex02 main tests ---" << std::endl;
+	ShrubberyCreationForm shrub("home");
+	RobotomyRequestForm robo("Bender");
+	PresidentialPardonForm pardon("Arthur Dent");
+	testForm(shrub, 145, 137);
+	testForm(robo, 72, 45);
+	testForm(pardon, 25, 5);
+	std::ifstream trees("home_shrubbery");
+	assert(trees.is_open() && trees.peek() != std::ifstream::traits_type::eof());
+
+	Bureaucrat executor("Robotomist", 45);
+	for (int i = 0; i < 10; ++i)
+		executor.executeForm(robo);
+	std::cout << "All ex02 tests passed." << std::endl;
 	return (0);
 }

@@ -13,28 +13,71 @@
 #include "Bureaucrat.hpp"
 #include "AForm.hpp"
 #include "Intern.hpp"
+#include <cassert>
 
-int	main(void)
+static void testCreatedForm(AForm& form)
+{
+	Bureaucrat boss("Boss", 1);
+	Bureaucrat weak("WeakExecutor", form.getGradeToExecute() + 1);
+	assert(!form.getIsSigned());
+	bool caught = false;
+	try
+	{
+		form.execute(boss);
+	}
+	catch (const AForm::FormNotSignedException& e)
+	{
+		caught = true;
+		std::cout << e.what() << std::endl;
+	}
+	assert(caught);
+	boss.executeForm(form);
+	boss.signForm(form);
+	assert(form.getIsSigned());
+	caught = false;
+	try
+	{
+		form.execute(weak);
+	}
+	catch (const AForm::GradeTooLowException& e)
+	{
+		caught = true;
+		std::cout << e.what() << std::endl;
+	}
+	assert(caught);
+	weak.executeForm(form);
+	boss.executeForm(form);
+}
+
+int main()
 {
 	std::cout << "--- ex03 main tests ---" << std::endl;
-	Intern		intern;
-	Bureaucrat	boss("Boss", 1);
-	Bureaucrat	mid("Mid", 70);
-	AForm*		forms[4];
-
-	forms[0] = intern.makeForm("shrubbery creation", "garden");
-	forms[1] = intern.makeForm("robotomy request", "Bender");
-	forms[2] = intern.makeForm("presidential pardon", "Arthur Dent");
-	forms[3] = intern.makeForm("not existing", "nobody");
-	for (int i = 0; i < 4; ++i)
+	Intern intern;
+	const std::string names[3] = {
+		"shrubbery creation", "robotomy request", "presidential pardon"
+	};
+	const std::string targets[3] = {"garden", "Bender", "Arthur Dent"};
+	const std::string classNames[3] = {
+		"ShrubberyCreationForm", "RobotomyRequestForm", "PresidentialPardonForm"
+	};
+	for (int i = 0; i < 3; ++i)
 	{
-		if (forms[i])
+		AForm* form = intern.makeForm(names[i], targets[i]);
+		assert(form != 0 && form->getName() == classNames[i]);
+		try
 		{
-			mid.signForm(*forms[i]);
-			boss.signForm(*forms[i]);
-			boss.executeForm(*forms[i]);
-			delete forms[i];
+			testCreatedForm(*form);
 		}
+		catch (...)
+		{
+			delete form;
+			throw;
+		}
+		delete form;
 	}
+	AForm* unknown = intern.makeForm("not existing", "nobody");
+	assert(unknown == 0);
+	delete unknown;
+	std::cout << "All ex03 tests passed." << std::endl;
 	return (0);
 }

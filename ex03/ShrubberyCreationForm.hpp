@@ -20,6 +20,7 @@ class ShrubberyCreationForm: public AForm
 {
 	private:
 		std::string _target;
+		void	executeAction() const;
 
 	public:
 		ShrubberyCreationForm();
@@ -27,8 +28,6 @@ class ShrubberyCreationForm: public AForm
 		ShrubberyCreationForm(const ShrubberyCreationForm& other);
 		ShrubberyCreationForm&	operator=(const ShrubberyCreationForm& other);
 		~ShrubberyCreationForm();
-
-		void	executeAction() const;
 };
 
 #endif

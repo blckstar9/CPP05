@@ -29,6 +29,8 @@ SRC					= main.cpp Bureaucrat.cpp AForm.cpp \
 					PresidentialPardonForm.cpp Intern.cpp
 
 OBJ					= $(SRC:%.cpp=$(OBJ_DIR)/%.o)
+DEP = $(OBJ:.o=.d)
+DEPFLAGS = -MMD -MP
 
 all: $(NAME)
 
@@ -40,7 +42,7 @@ $(NAME): $(OBJ)
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 	@mkdir -p $(dir $@)
 	@echo -e "$(ORANGE)Compiling $<...$(RESET)"
-	@$(CPP) $(CPPFLAGS) -c $< -o $@
+	@$(CPP) $(CPPFLAGS) $(DEPFLAGS) -c $< -o $@
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
@@ -59,3 +61,5 @@ re: fclean all
 	@echo -e "$(BG_YELLOW)Cleaned and rebuilt everything!$(RESET)"
 
 .PHONY: all clean fclean re
+
+-include $(DEP)

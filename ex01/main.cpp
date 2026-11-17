@@ -12,35 +12,62 @@
 
 #include "Bureaucrat.hpp"
 #include "Form.hpp"
+#include <cassert>
 
-int	main(void)
+static void testInvalidGrades(int signGrade, int execGrade)
+{
+	bool caught = false;
+	try
+	{
+		Form invalid("Invalid", signGrade, execGrade);
+	}
+	catch (const Form::GradeTooHighException& e)
+	{
+		assert(signGrade < 1 || execGrade < 1);
+		caught = true;
+		std::cout << e.what() << std::endl;
+	}
+	catch (const Form::GradeTooLowException& e)
+	{
+		assert(signGrade > 150 || execGrade > 150);
+		caught = true;
+		std::cout << e.what() << std::endl;
+	}
+	assert(caught);
+}
+
+int main()
 {
 	std::cout << "--- ex01 main tests ---" << std::endl;
-	try
-	{
-		Bureaucrat	boss("Boss", 1);
-		Bureaucrat	junior("Junior", 120);
-		Form		tax("TaxForm", 100, 80);
+	testInvalidGrades(0, 80);
+	testInvalidGrades(151, 80);
+	testInvalidGrades(100, 0);
+	testInvalidGrades(100, 151);
+	Form highest("Highest", 1, 1);
+	Form lowest("Lowest", 150, 150);
+	assert(highest.getGradeToSign() == 1 && highest.getGradeToExecute() == 1);
+	assert(lowest.getGradeToSign() == 150 && lowest.getGradeToExecute() == 150);
 
-		std::cout << boss << std::endl;
-		std::cout << junior << std::endl;
-		std::cout << tax << std::endl;
-		junior.signForm(tax);
-		boss.signForm(tax);
-		std::cout << tax << std::endl;
-	}
-	catch (std::exception& e)
-	{
-		std::cout << e.what() << std::endl;
-	}
+	Bureaucrat exact("Exact", 100);
+	Bureaucrat insufficient("Insufficient", 101);
+	Form tax("TaxForm", 100, 80);
+	assert(!tax.getIsSigned());
+	bool caught = false;
 	try
 	{
-		Form invalid("Broken", 0, 20);
-		std::cout << invalid << std::endl;
+		tax.beSigned(insufficient);
 	}
-	catch (std::exception& e)
+	catch (const Form::GradeTooLowException& e)
 	{
+		caught = true;
 		std::cout << e.what() << std::endl;
 	}
+	assert(caught && !tax.getIsSigned());
+	insufficient.signForm(tax);
+	assert(!tax.getIsSigned());
+	exact.signForm(tax);
+	assert(tax.getIsSigned());
+	std::cout << tax << std::endl;
+	std::cout << "All ex01 tests passed." << std::endl;
 	return (0);
 }

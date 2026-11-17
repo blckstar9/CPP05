@@ -15,8 +15,7 @@
 #include <ctime>
 #include <iostream>
 
-RobotomyRequestForm::RobotomyRequestForm()
-	: AForm("RobotomyRequestForm", 72, 45), _target("default")
+static void	seedRandomGenerator()
 {
 	static bool	seeded = false;
 
@@ -27,16 +26,16 @@ RobotomyRequestForm::RobotomyRequestForm()
 	}
 }
 
+RobotomyRequestForm::RobotomyRequestForm()
+	: AForm("RobotomyRequestForm", 72, 45), _target("default")
+{
+	seedRandomGenerator();
+}
+
 RobotomyRequestForm::RobotomyRequestForm(const std::string& target)
 	: AForm("RobotomyRequestForm", 72, 45), _target(target)
 {
-	static bool	seeded = false;
-
-	if (!seeded)
-	{
-		std::srand(std::time(NULL));
-		seeded = true;
-	}
+	seedRandomGenerator();
 }
 
 RobotomyRequestForm::RobotomyRequestForm(const RobotomyRequestForm& other)
